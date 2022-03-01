@@ -1,19 +1,26 @@
 package com.bartz24.voidislandcontrol.api;
 
+import com.bartz24.voidislandcontrol.VoidIslandControl;
 import com.bartz24.voidislandcontrol.config.ConfigOptions;
 import com.google.common.base.Strings;
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandGive;
+import net.minecraft.command.NumberInvalidException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,26 +138,10 @@ public class IslandManager {
         if (ConfigOptions.islandSettings.resetInventory) {
             player.inventory.clear();
 
-            try {
-                for (int i = 0; i < Math.max(ConfigOptions.islandSettings.startingItems.length, 36); i++) {
-                    String s = ConfigOptions.islandSettings.startingItems[i];
-                    if (!Strings.isNullOrEmpty(s) && s.contains(":") && s.contains("*")) {
-                        String trimmed = s.replaceAll(" ", "");
-                        String itemName = trimmed.split(":")[0] + ":" + trimmed.split(":")[1];
-                        int meta = Integer.parseInt(trimmed.split(":")[2].split("\\*")[0]);
-                        int amt = Integer.parseInt(trimmed.split(":")[2].split("\\*")[1]);
+            for (String stackString : ConfigOptions.islandSettings.startingItems) {
+                Pair<Integer, ItemStack> pair = fromString(player, stackString);
 
-                        Item item = CommandGive.getItemByText(player, itemName);
-
-                        ItemStack stack = new ItemStack(item, amt, meta);
-
-                        player.inventory.setInventorySlotContents(i, stack);
-                    }
-                }
-            } catch (Exception e) {
-                player.inventory.clear();
-                player.sendMessage(new TextComponentString(
-                        TextFormatting.RED + "Error getting starting inventory.\n" + e.toString()));
+                if (pair.getLeft() >= 0 && !pair.getRight().isEmpty()) player.inventory.setInventorySlotContents(pair.getLeft(), pair.getRight());
             }
         }
     }
@@ -311,5 +302,45 @@ public class IslandManager {
         if (!data.hasKey(EntityPlayer.PERSISTED_NBT_TAG))
             data.setTag(EntityPlayer.PERSISTED_NBT_TAG, new NBTTagCompound());
         return data.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+    }
+
+    private static Pair<Integer, ItemStack> fromString(EntityPlayer player, String s) {
+        if (!Strings.isNullOrEmpty(s) && s.contains(":") && s.contains("*")) {
+            String nbt = s.contains("#") ? s.split("#")[1] : null;
+            int slot = Integer.parseInt(s.split("@")[0]);
+
+            String shit0 = s.contains("#") ? s.split("#")[0] : s;
+            String shit = shit0.split("@")[1].split("\\*")[0];
+            String itemName = shit.split(":")[0] + ":" + shit.split(":")[1];
+            int meta = Integer.parseInt(shit.split(":")[2]);
+
+            int amount = Integer.parseInt(shit0.split("\\*")[1]);
+
+            Item item;
+
+            try {
+                item = CommandGive.getItemByText(player, itemName);
+            } catch (NumberInvalidException e) {
+                VoidIslandControl.logger.error("Can't get the item: " + itemName, e);
+                return Pair.of(-1, ItemStack.EMPTY);
+            }
+
+            NBTTagCompound tag = null;
+
+            try {
+                if (nbt != null) tag = JsonToNBT.getTagFromJson(nbt);
+            } catch (NBTException e) {
+                VoidIslandControl.logger.error("Can't get the nbt", e);
+            }
+
+            ItemStack stack = new ItemStack(item, 1, meta);
+            stack.setCount(Math.min(amount, stack.getMaxStackSize()));
+
+            if (tag != null) stack.setTagCompound(tag);
+
+            return Pair.of(slot, stack);
+        }
+
+        return Pair.of(-1, ItemStack.EMPTY);
     }
 }

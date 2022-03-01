@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.5.3"
+version = "1.5.4"
 group= "com.bartz24.voidislandcontrol" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "voidislandcontrol"
 
@@ -31,10 +31,15 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
-dependencies {
-    //deobfCompile "com.github.mcjty:compatlayer:1.10-0.2.2"
-	compile files("lib/Botania r1.10-354-deobf.jar")
+repositories {
+    maven {
+        name = 'jared maven'
+        url = 'https://maven.blamejared.com'
+    }
+}
 
+dependencies {
+    compileOnly "vazkii.botania:Botania:r1.10-364.4"
 }
 
 processResources
