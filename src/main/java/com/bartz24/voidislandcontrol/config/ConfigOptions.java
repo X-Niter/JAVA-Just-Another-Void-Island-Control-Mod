@@ -92,6 +92,8 @@ public class ConfigOptions {
 		public boolean forceSpawn = false;
 		@Config.Comment("Sets how long the buffs are given when spawning on an island in ticks (I think)")
 		public int buffTimer = 1200;
+		@Config.Comment("Should Void Island Control world type the default option")
+		public boolean defaultWorldType = true;
 
 		@Config.Comment("Settings for the grass island")
 		public GrassIslandSettings grassSettings = new GrassIslandSettings();
