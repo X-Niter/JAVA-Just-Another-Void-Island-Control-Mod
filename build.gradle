@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.5.4"
+version = "1.5.5"
 group= "com.bartz24.voidislandcontrol"
 archivesBaseName = "VoidIslandControl"
 
@@ -29,10 +29,15 @@ repositories {
         name = 'jared maven'
         url = 'https://maven.blamejared.com'
     }
+    maven {
+        name = "CurseForge"
+        url = "https://minecraft.curseforge.com/api/maven/"
+    }
 }
 
 dependencies {
     compileOnly "vazkii.botania:Botania:r1.10-364.4"
+    compileOnly "baubles:Baubles:1.12:1.5.2"
 }
 
 processResources
