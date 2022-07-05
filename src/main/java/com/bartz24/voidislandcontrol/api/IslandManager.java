@@ -1,5 +1,8 @@
 package com.bartz24.voidislandcontrol.api;
 
+import baubles.api.BaublesApi;
+import baubles.api.cap.IBaublesItemHandler;
+import com.bartz24.voidislandcontrol.References;
 import com.bartz24.voidislandcontrol.VoidIslandControl;
 import com.bartz24.voidislandcontrol.config.ConfigOptions;
 import com.google.common.base.Strings;
@@ -18,8 +21,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -137,11 +140,18 @@ public class IslandManager {
     public static void setStartingInv(EntityPlayerMP player) {
         if (ConfigOptions.islandSettings.resetInventory) {
             player.inventory.clear();
+            int invSize = player.inventory.getSizeInventory();
 
             for (String stackString : ConfigOptions.islandSettings.startingItems) {
                 Pair<Integer, ItemStack> pair = fromString(player, stackString);
 
-                if (pair.getLeft() >= 0 && !pair.getRight().isEmpty()) player.inventory.setInventorySlotContents(pair.getLeft(), pair.getRight());
+                if (pair.getLeft() >= 0 && !pair.getRight().isEmpty()) {
+                    if (pair.getLeft() < invSize) player.inventory.setInventorySlotContents(pair.getLeft(), pair.getRight());
+                    else if (Loader.isModLoaded(References.BAUBLES)) {
+                        IBaublesItemHandler baubles = BaublesApi.getBaublesHandler(player);
+                        baubles.setStackInSlot(pair.getLeft() - invSize + 1, pair.getRight());
+                    }
+                }
             }
         }
     }

@@ -1,8 +1,9 @@
 package com.bartz24.voidislandcontrol;
 
+import baubles.api.BaublesApi;
+import baubles.api.cap.IBaublesItemHandler;
 import com.bartz24.voidislandcontrol.config.ConfigOptions;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,6 +16,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.common.Loader;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -22,11 +24,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class StartingInvCommand extends CommandBase implements ICommand {
-	private List<String> aliases;
+	private final List<String> aliases;
 
 	public StartingInvCommand() {
-		aliases = new ArrayList<String>();
+		aliases = new ArrayList<>();
 		aliases.add("startingInv");
+		aliases.add("startingInventory");
 	}
 
 	@Override
@@ -45,19 +48,21 @@ public class StartingInvCommand extends CommandBase implements ICommand {
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
 		World world = sender.getEntityWorld();
 		EntityPlayerMP player = (EntityPlayerMP) world.getPlayerEntityByName(sender.getCommandSenderEntity().getName());
 
-		ConfigOptions.islandSettings.startingItems = ConfigOptions.emptyFilledArray(36);
+		int inventorySize = player.inventory.getSizeInventory();
 		List<String> list = new ArrayList<>();
 
-		for (int i = 0; i < 36; i++) {
+		for (int i = 0; i < inventorySize; i++) {
 			ItemStack stack = player.inventory.getStackInSlot(i);
 			if (!stack.isEmpty()) {
 				list.add(asString(i, stack));
 			}
 		}
+
+		if (Loader.isModLoaded(References.BAUBLES)) baublesIntegration(list, player);
 
 		ConfigOptions.islandSettings.startingItems = list.toArray(new String[list.size()]);
 		ConfigManager.sync(References.ModID, Config.Type.INSTANCE);
@@ -90,5 +95,15 @@ public class StartingInvCommand extends CommandBase implements ICommand {
 		if (nbt != null) builder.append("#").append(nbt.toString());
 
 		return builder.toString();
+	}
+
+	private static void baublesIntegration(List<String> list, EntityPlayerMP player) {
+		int invSize = player.inventory.getSizeInventory();
+		IBaublesItemHandler baubles = BaublesApi.getBaublesHandler(player);
+
+		for (int i = invSize; i < invSize + baubles.getSlots(); i++) {
+			ItemStack stack = baubles.getStackInSlot(i - invSize);
+			if (!stack.isEmpty()) list.add(asString(invSize, stack));
+		}
 	}
 }

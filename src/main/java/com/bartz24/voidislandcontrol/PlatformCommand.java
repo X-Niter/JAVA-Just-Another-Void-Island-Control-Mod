@@ -102,8 +102,7 @@ public class PlatformCommand extends CommandBase implements ICommand {
             subCommand = subCommand.trim();
 
             if (subCommand.equals("create")) {
-                if (args.length > 1 && args[1].equals("bypass"))
-                    args = new String[]{args[0]};
+                if (args.length > 1 && args[1].equals("bypass")) args = new String[]{args[0]};
                 newPlatform(player, args);
                 MinecraftForge.EVENT_BUS.post(
                         new IslandCreateEvent(player, IslandManager.getPlayerIsland(player.getGameProfile().getId())));
@@ -388,7 +387,10 @@ public class PlatformCommand extends CommandBase implements ICommand {
                             ConfigOptions.islandSettings.islandYLevel,
                             position.getY() * ConfigOptions.islandSettings.islandDistance),
                     true);
+
+            IslandManager.setStartingInv(player);
         }
+
         if (IslandManager.hasVisitLoc(player)) {
             player.setGameType(GameType.SURVIVAL);
             IslandManager.removeVisitLoc(player);
