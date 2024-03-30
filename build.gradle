@@ -1,58 +1,45 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-    }
+plugins {
+    id "com.gtnewhorizons.retrofuturagradle" version "1.3.33"
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "1.5.5"
 group= "com.bartz24.voidislandcontrol"
 archivesBaseName = "VoidIslandControl"
 
-sourceCompatibility = targetCompatibility = "1.8"
-compileJava {
-    sourceCompatibility = targetCompatibility = "1.8"
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 minecraft {
-    version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-    mappings = "snapshot_20171217"
+    mcVersion = "1.12.2"
 }
 
 repositories {
     maven {
-        name = 'jared maven'
+        name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
     maven {
-        name = "CurseForge"
-        url = "https://minecraft.curseforge.com/api/maven/"
+        name = "CurseMaven"
+        url = "https://cursemaven.com"
     }
 }
 
 dependencies {
     compileOnly "vazkii.botania:Botania:r1.10-364.4"
-    compileOnly "baubles:Baubles:1.12:1.5.2"
+    compileOnly "curse.maven:baubles-227083:2518667"
 }
 
-processResources
-{
+processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    filesMatching(['mcmod.info']) { fcd ->
+        fcd.expand(
+                'version': project.version,
+                'mcversion': project.minecraft.mcVersion
+        )
     }
 }
