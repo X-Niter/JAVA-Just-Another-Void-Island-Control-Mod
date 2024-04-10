@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = References.ModID, name = References.ModName, useMetadata = true)
 public class VoidIslandControl {
-	@SidedProxy(clientSide = "com.bartz24.voidislandcontrol.proxy.ClientProxy", serverSide = "com.bartz24.voidislandcontrol.proxy.ServerProxy")
+	@SidedProxy(clientSide = "com.bartz24.voidislandcontrol.proxy.ClientProxy")
 	public static CommonProxy proxy;
 
 	@Mod.Instance
