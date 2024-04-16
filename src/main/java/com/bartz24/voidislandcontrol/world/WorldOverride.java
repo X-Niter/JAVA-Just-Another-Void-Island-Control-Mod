@@ -19,7 +19,7 @@ public class WorldOverride
 						"_nether", -1, WorldProviderNetherVoid.class, true));
 			} catch (Exception e)
 			{
-				VoidIslandControl.logger.error("Could not override the nether dimension to be void!");
+				VoidIslandControl.LOGGER.error("Could not override the nether dimension to be void!");
 			}
 		}
 		if (ConfigOptions.worldGenSettings.endVoid)
@@ -31,7 +31,7 @@ public class WorldOverride
 						"_end", 1, WorldProviderEndVoid.class, true));
 			} catch (Exception e)
 			{
-				VoidIslandControl.logger.error("Could not override the end dimension to be void!");
+				VoidIslandControl.LOGGER.error("Could not override the end dimension to be void!");
 			}
 		}
 	}

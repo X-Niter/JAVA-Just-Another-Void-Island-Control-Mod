@@ -1,5 +1,7 @@
 package com.bartz24.voidislandcontrol;
 
+import com.bartz24.voidislandcontrol.voidislandcontrol.Tags;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.bartz24.voidislandcontrol.api.IslandManager;
@@ -17,23 +19,23 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = References.ModID, name = References.ModName, useMetadata = true)
+@Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION, useMetadata = true)
 public class VoidIslandControl {
-	@SidedProxy(clientSide = "com.bartz24.voidislandcontrol.proxy.ClientProxy")
+	@SidedProxy(clientSide = "com.bartz24.voidislandcontrol.proxy.ClientProxy", serverSide = "com.bartz24.voidislandcontrol.proxy.CommonProxy")
 	public static CommonProxy proxy;
 
 	@Mod.Instance
 	public static VoidIslandControl instance;
 
-	public static Logger logger;
+	public static final Logger LOGGER = LogManager.getLogger(Tags.MOD_NAME);
 
 	@Mod.EventHandler
 	public void serverLoading(FMLServerStartingEvent event) {
-		logger.info("Registering Void Island Control commands.");
+		LOGGER.info("Registering Void Island Control commands.");
 		event.registerServerCommand(new PlatformCommand());
 		event.registerServerCommand(new StartingInvCommand());
 		event.registerServerCommand(new AdminCommand());
-		logger.info("Finished registering Void Island Control commands.");
+		LOGGER.info("Finished registering Void Island Control commands.");
 
 		if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
 			IslandManager.CurrentIslandsList.clear();
@@ -57,7 +59,7 @@ public class VoidIslandControl {
 
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		logger = event.getModLog();
+		LOGGER.info("Initializing {}!", Tags.MOD_NAME);
 		proxy.preInit(event);
 	}
 

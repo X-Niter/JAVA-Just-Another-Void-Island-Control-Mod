@@ -329,7 +329,7 @@ public class IslandManager {
             try {
                 item = CommandGive.getItemByText(player, itemName);
             } catch (NumberInvalidException e) {
-                VoidIslandControl.logger.error("Can't get the item: " + itemName, e);
+                VoidIslandControl.LOGGER.error("Can't get the item: {}", itemName, e);
                 return Pair.of(-1, ItemStack.EMPTY);
             }
 
@@ -338,7 +338,7 @@ public class IslandManager {
             try {
                 if (nbt != null) tag = JsonToNBT.getTagFromJson(nbt);
             } catch (NBTException e) {
-                VoidIslandControl.logger.error("Can't get the nbt", e);
+                VoidIslandControl.LOGGER.error("Can't get the nbt ", e);
             }
 
             ItemStack stack = new ItemStack(item, 1, meta);
